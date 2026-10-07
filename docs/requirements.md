@@ -29,5 +29,15 @@
 - **FR19(Notification Preferences):** The system should allow passengers to configure their notifications preferences(delays, cancelations, diversions)
 - **FR20(Subscriptions Notifications):** When an operational change or disruption occurs the system should notify all passengers whose subscription match line, stop or trip 
 
+## 3. Non Functional Requirements(NFR)
 
+- **NFR1(Component Isolation Failures):** Temporary component failures should not affect others , for example if notification component fails other components should work normaly 
+- **NFR2(Communication/Network Failures):** Communication failures, timeouts, network failures should be handled gracefuly by the system
+- **NFR3(Idempotency):** Operations such as purchasing a ticket, validating a ticket or sending an alert notification should not be executed more than once
 
+- **NFR4(Multi-Component Architecture):** The system should be divided in multiple components, it should be decomposed at the very least as a web-application, a core backend, a notification component
+- **NFR5(Containerization):** The system components must be containerized to ensure a consistent environment and deployment
+- **NFR6(Communication Used):** The system should use synchronus communication(REST for request-reponse operations) and assynchronus communication for events/Alerts(Notifications)
+
+- **NFR7(Monitoring Components):** Each component should provide logs, health status and observability mechanisms to detect failures
+- **NFR8(Code-Base Changes):** Every code-base changes pushed to the repository should be automatically built, tested(at the very minimum unit tests) and analyzed with code quality tools
