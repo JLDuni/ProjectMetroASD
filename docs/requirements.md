@@ -29,6 +29,9 @@
 - **FR19(Notification Preferences):** The system should allow passengers to configure their notifications preferences(delays, cancelations, diversions)
 - **FR20(Subscriptions Notifications):** When an operational change or disruption occurs the system should notify all passengers whose subscription match line, stop or trip 
 
+- **FR21(Historical Data Access):** The system should retain and provide access to historical information regarding past schedules, trips, disruptions, tickets, and validations for operational analysis.
+
+
 ## 3. Non Functional Requirements(NFR)
 
 - **NFR1(Component Isolation Failures):** Temporary component failures should not affect others , for example if notification component fails other components should work normaly 
@@ -41,6 +44,10 @@
 
 - **NFR7(Monitoring Components):** Each component should provide logs, health status and observability mechanisms to detect failures
 - **NFR8(Code-Base Changes):** Every code-base changes pushed to the repository should be automatically built, tested(at the very minimum unit tests) and analyzed with code quality tools
+
+- **NFR9(Deployment Strategy):** The CI/CD pipeline must implement a specific deployment strategy (e.g., rolling, blue-green, canary, or shadow) to automatically deploy the application to clearly separated development and production environments.
+- **NFR10(Configuration & Secrets Management):** The system infrastructure must securely manage environment configurations, secrets, and persistent data independently from the application source code.
+- **NFR11(Traceability):** The development process must ensure strict traceability between source code versions, generated deployment artifacts, and the currently deployed versions.
 
 
 ## 4. Assumptions, Ambiguities, Inconsistencies and Missing Information
@@ -188,9 +195,9 @@ Source labels refer to the "Technical Description" section: **P1** network/sched
 | FR6 | P1 ("known changes"), P2 | NFR6 | COMM |
 | FR7 | P2 | NFR7 | DEPLOY (monitoring), Phases |
 | FR8 | P2 | NFR8 | CICD, TEST |
-| FR9 | P2, P6 | | |
-| FR10 | P3 | | |
-| FR11 | P3 | | |
+| FR9 | P2, P6 | NFR9 | CICD, DEPLOY |
+| FR10 | P3 | NFR10 | DEPLOY |
+| FR11 | P3 | NFR11 | CICD |
 | FR12 | P3, P4 | | |
 | FR13 | P4 | | |
 | FR14 | P4 | | |
@@ -200,14 +207,14 @@ Source labels refer to the "Technical Description" section: **P1** network/sched
 | FR18 | P6 | | |
 | FR19 | P6 | | |
 | FR20 | P6 | | |
+| FR21 | P8 | | |
  
 **Gaps (description statements with no requirement yet):**
 - P7: staff maintaining network and schedules, managing ticket information, and registering disruptions.
 - P2: disruptions at line, stop or period scope.
 - P1: passenger information must reflect known changes.
-- P8: historical information.
 - ARCH: independent supporting service beyond notification.
-- TEST, CICD, DEPLOY: integration/e2e tests, environments, secrets, versioned artifacts, traceability.
+- TEST: integration/e2e tests.
 These are covered in the suggested changes in Appendix B.
  
 ## 6. Initial System Decomposition
