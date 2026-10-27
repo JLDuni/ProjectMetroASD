@@ -116,13 +116,13 @@ These are covered in the suggested changes in Appendix B.
  
 | Component | Responsibilities | Owns data |
 |---|---|---|
-| **Web App** | Passenger UI: consultation, tickets, subscriptions, notifications. Staff back-office: network, schedules, disruptions, ticket inspection, occupancy. | none |
+| **Web App** | Passenger UI: consultation, tickets, subscriptions, notifications. Staff back-office: network, schedules, ticket types, disruptions, ticket inspection, occupancy. | none |
 | **Core Backend** | Authentication and roles (issues JWT). Network (lines, stops), schedules, trip instances. Disruption management and delay recalculation. Publishes disruption events. | users, lines, stops, schedules, trips, disruptions |
-| **Ticketing & Occupancy Service** (supporting) | Ticket types, purchase, passenger wallet, expiry. Validation (atomic, idempotent). Validation history for staff. Occupancy and capacity calculation. | ticket types, tickets, validations, occupancy |
-| **Notification Service** (supporting, independent boundary) | Subscriptions and preferences. Resolves affected passengers (subscriptions, plus ticket holders via event data). Deduplication, delivery, notification history. | subscriptions, preferences, notifications |
-| **Message Broker** | Async event transport (e.g. RabbitMQ): `TripDelayed`, `TripCancelled`, `TripDiverted`, `DisruptionResolved`, `TicketPurchased`, `TicketExpired`. | none |
-| **Observability** (cross-cutting) | Logs, health endpoints and metrics for every component (NFR7). | n/a |
- 
+| **Ticketing & Occupancy Service** (supporting) | Ticket types, purchase, passenger tickets, expiry. Validation (atomic, idempotent). Validation history for staff. Occupancy calculation. | ticket types, tickets, validations, occupancy |
+| **Notification Service** (supporting, independent boundary) | Subscriptions and preferences. Finds affected passengers (subscriptions, plus ticket holders via event data). Deduplication, delivery, notification history. | subscriptions, preferences, notifications |
+| **Message Broker** | Async event transport (RabbitMQ): `TripDelayed`, `TripCancelled`, `TripDiverted`, `DisruptionResolved`, `TicketPurchased`, `TicketExpired`. | none |
+| **Observability** (cross-cutting) | Logs, health endpoints and metrics for every component (NFR15). | n/a |
+
 **Interactions**
 - **Sync (REST):** the Web App calls the Core and Ticketing services. Ticketing calls Core to check trip existence and capacity, with timeout, retry and cached fallback.
 - **Async (events):** the Core publishes disruption events, which the Notification Service consumes. Ticketing publishes ticket events, which Notification consumes to know which passengers hold active tickets.
@@ -130,12 +130,16 @@ These are covered in the suggested changes in Appendix B.
 - **Idempotency (NFR3):** the client sends an idempotency key for purchase and validation. Event consumers deduplicate by event id.
 **Trade-off to justify:** keeping tickets and validation together avoids a distributed transaction around the "last journey" race. The cost is a larger service. Alternatively, merge ticketing into the Core, but then only Notification and Occupancy are separate.
  
-## 7. LLM / AI Agent Usage Evidence (Milestone 1) 
- 
-Methodology ? ex: peer review on push / ci/cd validation /self-reviewing / AI peer review
- 
-| # | Date | Member | Tool/Model | Task | Prompt (link/summary) | LLM output summary | Human validation | Accepted / Modified / Rejected | Time spent |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | | | | extract FR/NFR from description | | || | |
-| 2 | | | | rough buiding of software requirements  | | || | |
- 
+## 7. LLM / AI Agent Usage Evidence
+
+LLMs and AI agents were used in all three stages of requirements engineering (analysis, refinement and validation), always with human review of what they produced.
+
+In the **analysis** stage, the team read the project description and wrote a first list of functional and non-functional requirements. Google Gemini was used to help extract this first list from the project description, and the list grew over several commits between 6 and 12 October (`04e7263`, `603f48e`, `03b4f4b`).
+
+In the **refinement** stage, the requirements were examined to find what the project description leaves open. Using Gemini, this produced a list of 26 ambiguities, inconsistencies and missing pieces of information (A1–A26, commit `bbea86e`). Each item points to the sentence of the description it comes from, explains the problem and records a decision or assumption. The team did not accept the list as it was. Items were merged, the document was reorganized into tables (`e3a3304`), and two assumptions were removed by a team member (`f012e30`): A4 (simulated payment) and A5 (delays entered manually by staff). Section 4 keeps the original numbers in the "Old ID" column so this refinement can be traced.
+
+In the **validation** stage, on 27 October, an AI agent (Claude Code with Claude Opus 5.5) was run inside the repository. It could read this document, the other project files and the git history, and it was given the project statement. It was asked to check whether the document was correct and to find what was missing. The agent compared each statement of the project description with the requirements and with the traceability table in section 5. It found missing requirements for staff management, disruptions at line, stop or period level, historical information, and CI/CD and deployment. It also found inconsistencies between sections, such as the occupancy states in FR16 and AM-07 and the role of the Ticketing service in section 6, a reference to an "Appendix B" that does not exist, and a project-context file for agents (`AGENTS.md`) that describes another project.
+
+The agent also proposed a full rewrite of the document. The team reviewed it and decided not to keep it. During that review the team also found that the agent had changed one of the team's own decisions without being asked (AM-08, "SSE or polling" changed to "polling"), and that change was reverted. Open questions, such as IN-01, were kept as team decisions even where the agent recommended an option.
+
+Overall, the AI was most useful for finding gaps and inconsistencies that are easy to miss in a long document, and for checking coverage against the project description. Human review was still needed to decide what to keep, to keep the scope simple, and to make sure that decisions stayed with the team.
