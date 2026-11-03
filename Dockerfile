@@ -9,9 +9,9 @@
 # ---- Stage 1: build the React frontend ----
 FROM node:20-alpine AS frontend
 WORKDIR /frontend
-COPY frontend/package.json frontend/
+COPY frontend/package.json ./package.json
 RUN npm install
-COPY frontend/ ./
+COPY frontend/ ./ 
 RUN npm run build
 
 # ---- Stage 2: build the Go backend ----
