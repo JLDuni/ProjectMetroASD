@@ -3,6 +3,8 @@
 docs
 *.md
 vault.txt
-__pycache__
-*.pyc
-.pytest_cache
+
+frontend/node_modules
+frontend/dist
+backend/metro
+**/__pycache__
