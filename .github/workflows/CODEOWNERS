@@ -13,7 +13,7 @@
 
 
 # Fallback owner for everything in the repo.
-*                       @JLDuni @J0aoCanais @layonxd @Rafasta236
+*                       @JLDuni
 
 # --- Security-critical: workflow files (pwn-request attack surface) ---
 # Any change to a workflow must be reviewed by the security/platform team.
@@ -23,26 +23,26 @@
 # --- Protect the ownership file itself (per GitHub docs) ---
 # Most secure: put CODEOWNERS in .github/ and own it (or the whole dir)
 # by the repository owner.
-.github/CODEOWNERS      @JLDuni @J0aoCanais @layonxd @Rafasta236
+.github/CODEOWNERS      @JLDuni @J0aoCanais  @Rafasta236
 # Alternatively, own the whole .github directory:
 # /.github/             @your-org/repo-owners
 
 # --- Build/deploy surface: what runs on the runner ---
-Dockerfile              @JLDuni @J0aoCanais @layonxd @Rafasta236
-docker-compose*.yml     @JLDuni @J0aoCanais @layonxd @Rafasta236
-*.sh                    @JLDuni @J0aoCanais @layonxd @Rafasta236
-Makefile                @your-org/platform-team
+Dockerfile              @JLDuni @J0aoCanais
+docker-compose*.yml     @JLDuni @J0aoCanais 
+*.sh                    @JLDuni @J0aoCanais 
+Makefile                @JLDuni @J0aoCanais 
 
 # --- Application code ---
-/src/                   @JLDuni @J0aoCanais @layonxd @Rafasta236
-/tests/                 @JLDuni @J0aoCanais @layonxd @Rafasta236
+/src/                   @JLDuni @J0aoCanais 
+/tests/                 @JLDuni @J0aoCanais 
 
 # --- Dependency manifests (supply-chain relevant) ---
-package.json            @JLDuni @J0aoCanais @layonxd @Rafasta236
-package-lock.json       @JLDuni @J0aoCanais @layonxd @Rafasta236
-requirements*.txt       @JLDuni @J0aoCanais @layonxd @Rafasta236
-go.mod                  @JLDuni @J0aoCanais @layonxd @Rafasta236
-go.sum                  @JLDuni @J0aoCanais @layonxd @Rafasta236
+package.json            @JLDuni @J0aoCanais 
+package-lock.json       @JLDuni @J0aoCanais 
+requirements*.txt       @JLDuni @J0aoCanais
+go.mod                  @JLDuni @J0aoCanais
+go.sum                  @JLDuni @J0aoCanais
 
 # --- Infrastructure / CI config ---
-/.github/dependabot.yml @JLDuni @J0aoCanais @layonxd @Rafasta236
+/.github/dependabot.yml @JLDuni @J0aoCanai

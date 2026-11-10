@@ -1,0 +1,12 @@
+
+
+## PARTE 2: REGISTO DIÁRIO DE USO DE IA (TEMPLATE PARA RECOLHA DE EVIDÊNCIAS & MÉTRICAS)
+
+| ID Registo | Data | Membro Equipa | Fase SDLC | Tarefa / Módulo | Ferramenta IA Usada | Prompt Resumido / Ficheiro Contexto | Nível Autonomia (%) | Tempo Humano (Min) | Resultado / Erros Encontrados | Commit SHA / Link Evidência |
+|---|---|---|---|---|---|---|---:|---:|---|---|
+| LOG-001 | 2026-10-10 | João Canais | Requisitos | Extração de ambiguidades do PDF | Gemini 3.5 Pro | Prompt: 'Analisa o enunciado e lista ambiguidades AM-XX' | 70% | 30 min | Identificou 26 itens. 2 foram rejeitados por decisão da equipa. | commit 04e7263 |
+| LOG-002 | 2026-10-27 | Rodrigo R. | Requisitos | Revisão e validação com agente | Claude Code (Opus) | Leitura do repositório para procurar lacunas de requisitos | 85% | 45 min | Detetou falta de requisitos de CI/CD. Tentou alterar AM-08 (revertido). | commit e3a3304 |
+| LOG-003 | 2026-11-10 | João Dias | DevOps / CI | Pipeline de Build no GitHub Actions | Claude Code | Prompt: 'Cria workflow .github/workflows/ci.yml com build e linter' | 90% | 15 min | Pipeline criada e funcional à 1.ª tentativa. Passou em 100% dos linters. | commit 7f8a12b |
+| LOG-004 | 2026-11-18 | Rafael Mota | Backend / Seed | Modelos Prisma de Paragens e Linhas | Cursor / Claude 3.5 | Contexto: Schema das tabelas 'stops' e 'lines' do Excel v4 | 80% | 20 min | Gerou os modelos e migrations SQL. Corrigido tipo de dados de lat/long. | commit 3a91c4d |
+| LOG-005 | 2026-11-24 | João Canais | Ticketing | Lógica de Validação com Idempotência | GitHub Copilot | Implementar chave de idempotência no endpoint /tickets/validate | 60% | 50 min | IA gerou validação simples. Esforço humano para garantir NFR3 (cache/redis). | commit 9b20e11 |
+

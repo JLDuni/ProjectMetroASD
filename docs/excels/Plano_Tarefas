@@ -1,0 +1,39 @@
+# Planeamento Detalhado – MetroIsJustABus
+
+| ID | Fase / Componente | Requisitos | Tarefa | Responsável | Início | Fim | Estado | Prioridade |
+|:---:|:---|:---:|:---|:---:|:---:|:---:|:---:|:---:|
+| 1 | M2.1 (CI & Testes) | NFR8 | Configurar repositório git e self-hosted runner | Sofia | 2026-11-09 | 2026-11-10 | Não Iniciado | Alta |
+| 2 | M2.1 (CI & Testes) | NFR8 | Implementar Pipeline CI (Build Automático) | Sofia | 2026-11-10 | 2026-11-11 | Não Iniciado | Alta |
+| 3 | M2.1 (CI & Testes) | NFR8 | Adicionar validações de código (Linters, SonarQube) | Rafa | 2026-11-11 | 2026-11-12 | Não Iniciado | Alta |
+| 4 | M2.1 (CI & Testes) | NFR8, TEST | Implementar testes unitários e de integração iniciais | Rafa | 2026-11-12 | 2026-11-13 | Não Iniciado | Alta |
+| 5 | M2.2 (CD & Deploy) | NFR5 | Criar Dockerfiles para cada serviço da arquitetura | Rodrigo | 2026-11-13 | 2026-11-14 | Não Iniciado | Alta |
+| 6 | M2.2 (CD & Deploy) | NFR5 | Configurar orquestração local (docker-compose.yml) | Rodrigo | 2026-11-14 | 2026-11-15 | Não Iniciado | Alta |
+| 7 | M2.2 (CD & Deploy) | DEPLOY | Automatizar Deploy para Ambiente de Development na Pipeline CD | — | 2026-11-15 | 2026-11-16 | Não Iniciado | Alta |
+| 8 | M2.2 (CD & Deploy) | NFR7 | Validação final M2 e testes de health check em Dev | — | 2026-11-16 | 2026-11-17 | Não Iniciado | Crítica |
+| 9 | M3 - Governance & AI | AGENTIC, NFR4 | Criar e manter o ficheiro AGENTS.md na raiz do repositório com as diretivas restritivas para LLMs/Agentes (Arquitetura, Idempotência NFR3, Schemas BD) | — | 2026-11-18 | 2026-11-18 | Não Iniciado | Alta |
+| 10 | M3 - Seed Data | FR1, MI-05 | Pesquisar/Definir credenciais Seed de Utilizadores: Emails de Staff/Admin, hashes de password (BCrypt), roles ('STAFF', 'PASSENGER') e IDs de teste | — | 2026-11-18 | 2026-11-19 | Não Iniciado | Alta |
+| 11 | M3 - Seed Data | FR2, FR3 | Levantamento de Paragens e Linhas: Obter coordenadas GPS (Lat/Long), nomes reais/fictícios (ex: Coimbra/SMTUC), cores HEX e sequência exata de paragens por linha com distâncias (km) | — | 2026-11-18 | 2026-11-19 | Não Iniciado | Alta |
+| 12 | M3 - Seed Data | FR4, AM-01/02 | Definir Horários e Calendário: Mapear tipos de dia (Semana, Sábado, Feriados), matriz de tempos de viagem entre paragens, frequência de partidas (ex: a cada 15m) e instâncias de viagem para a data da avaliação | — | 2026-11-19 | 2026-11-20 | Não Iniciado | Alta |
+| 13 | M3 - Seed Data | FR10, AM-03 | Levantamento de Tarifário e Bilheteira: Especificar preços (€), tempos de validade exatos (horas/dias), limite de viagens (1, 10, ilimitado) e condições/restrições de linha para 4 tipos de bilhete | — | 2026-11-19 | 2026-11-20 | Não Iniciado | Alta |
+| 14 | M3 - Seed Data | AM-06, FR15 | Definir Parâmetros de Ocupação: Estabelecer lotação máxima padrão por autocarro (ex: 80 pax), fórmulas de cálculo por validação e thresholds exatos de ocupação (Low <50%, Medium 50-89%, Full >=90%) | — | 2026-11-20 | 2026-11-21 | Não Iniciado | Média |
+| 15 | M3 - WebApp | FR1, NFR6 | Desenvolver Login/Sign-up (Passageiros e Staff) | — | 2026-11-21 | 2026-11-23 | Não Iniciado | Alta |
+| 16 | M3 - WebApp | FR2, FR3, FR4 | UI de Consulta de Rede (Linhas, Paragens e Horários) | — | 2026-11-23 | 2026-11-25 | Não Iniciado | Média |
+| 17 | M3 - WebApp | FR5, FR16 | UI de Live Tracking: Monitorização de Viagens, Atrasos e Ocupação | — | 2026-11-25 | 2026-11-27 | Não Iniciado | Alta |
+| 18 | M3 - WebApp | FR10, FR11 | UI Passageiro: Loja de Bilhetes e Carteira de Bilhetes Ativos/Expirados | — | 2026-11-28 | 2026-11-30 | Não Iniciado | Alta |
+| 19 | M3 - WebApp | FR14, FR15 | UI Staff Back-office: Dados de Inspeção e Monitorização de Ocupação Real | — | 2026-12-01 | 2026-12-03 | Não Iniciado | Média |
+| 20 | M3 - Core Backend | FR2, NFR4 | API REST de Leitura da Rede (Linhas, Paragens, Instâncias de Viagens) | — | 2026-11-21 | 2026-11-24 | Não Iniciado | Alta |
+| 21 | M3 - Core Backend | FR6, FR10 | Implementar recálculo de tempos de chegada por atrasos em 'stop_schedules' | — | 2026-11-24 | 2026-11-26 | Não Iniciado | Alta |
+| 22 | M3 - Core Backend | FR7, FR8 | Implementar gestão de Cancelamentos e Desvios em 'disruptions' e 'trip_instances' | — | 2026-11-26 | 2026-11-28 | Não Iniciado | Média |
+| 23 | M3 - Ticketing | FR10, FR12 | Lógica de Compra em 'passenger_tickets' e Revogação por Expiração | — | 2026-11-21 | 2026-11-24 | Não Iniciado | Alta |
+| 24 | M3 - Ticketing | FR13, NFR3 | API de Validação (Idempotência) em 'ticket_validations' | — | 2026-11-24 | 2026-11-27 | Não Iniciado | Crítica |
+| 25 | M3 - Ticketing | FR15, FR17 | Cálculo Dinâmico de Ocupação em 'trip_occupancy' baseado nas Validações | — | 2026-11-27 | 2026-11-29 | Não Iniciado | Alta |
+| 26 | M3 - Notifications | NFR6 | Configurar Message Broker (RabbitMQ) e envio assíncrono de Eventos | — | 2026-11-21 | 2026-11-23 | Não Iniciado | Alta |
+| 27 | M3 - Notifications | FR18, FR19 | Serviço de 'subscriptions' e 'notification_preferences' | — | 2026-11-24 | 2026-11-26 | Não Iniciado | Média |
+| 28 | M3 - Notifications | FR9, FR20 | Lógica de Match & Deduplicação em 'notifications' para Passageiros Afetados | — | 2026-11-27 | 2026-11-30 | Não Iniciado | Alta |
+| 29 | M3 - Notifications | NFR1, NFR2 | Implementar fallback, tolerância a falhas e isolamento no serviço | — | 2026-12-01 | 2026-12-03 | Não Iniciado | Alta |
+| 30 | M3 - Ops & Infra | DEPLOY | Configurar Ambiente de Produção (Estratégia: Rolling, Blue/Green ou Canary) | — | 2026-12-04 | 2026-12-06 | Não Iniciado | Alta |
+| 31 | M3 - Ops & Infra | NFR7 | Implementar Logs Centralizados e Status de Health/Observabilidade | — | 2026-12-05 | 2026-12-07 | Não Iniciado | Alta |
+| 32 | M3 - Docs & IA | PROCESS | Documentar Arquitetura, Traceability e Processos CI/CD no Relatório | — | 2026-12-06 | 2026-12-08 | Não Iniciado | Alta |
+| 33 | M3 - Docs & IA | AGENTIC | Compilar e Analisar Evidências/Métricas de uso da IA (Autonomia vs. Correções) | — | 2026-12-07 | 2026-12-09 | Não Iniciado | Alta |
+| 34 | M3 - Docs | DEMO | Gravação do Vídeo de Demonstração (Perspectiva Passageiro, Interações, Falhas) | — | 2026-12-08 | 2026-12-09 | Não Iniciado | Alta |
+| — | Entrega Final | RELEASE | Revisão Final (Testes E2E), Freeze de Código e Submissão no Inforestudante | — | 2026-12-10 | 2026-12-11 | Não Iniciado | Crítica |
