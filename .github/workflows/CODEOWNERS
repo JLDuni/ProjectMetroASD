@@ -45,4 +45,4 @@ go.mod                  @JLDuni @J0aoCanais
 go.sum                  @JLDuni @J0aoCanais
 
 # --- Infrastructure / CI config ---
-/.github/dependabot.yml @JLDuni @J0aoCanai
+/.github/dependabot.yml @JLDuni 
