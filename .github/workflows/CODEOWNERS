@@ -1,0 +1,48 @@
+# .github/CODEOWNERS
+# Order matters: the LAST matching pattern wins.
+
+# us 
+# @JLDuni
+# @J0aoCanais
+# @layonxd
+# @Rafasta236
+# all -
+# @JLDuni @J0aoCanais @layonxd @Rafasta236
+
+
+
+
+# Fallback owner for everything in the repo.
+*                       @JLDuni @J0aoCanais @layonxd @Rafasta236
+
+# --- Security-critical: workflow files (pwn-request attack surface) ---
+# Any change to a workflow must be reviewed by the security/platform team.
+.github/workflows/      @layonxd 
+.github/actions/        @layonxd 
+
+# --- Protect the ownership file itself (per GitHub docs) ---
+# Most secure: put CODEOWNERS in .github/ and own it (or the whole dir)
+# by the repository owner.
+.github/CODEOWNERS      @JLDuni @J0aoCanais @layonxd @Rafasta236
+# Alternatively, own the whole .github directory:
+# /.github/             @your-org/repo-owners
+
+# --- Build/deploy surface: what runs on the runner ---
+Dockerfile              @JLDuni @J0aoCanais @layonxd @Rafasta236
+docker-compose*.yml     @JLDuni @J0aoCanais @layonxd @Rafasta236
+*.sh                    @JLDuni @J0aoCanais @layonxd @Rafasta236
+Makefile                @your-org/platform-team
+
+# --- Application code ---
+/src/                   @JLDuni @J0aoCanais @layonxd @Rafasta236
+/tests/                 @JLDuni @J0aoCanais @layonxd @Rafasta236
+
+# --- Dependency manifests (supply-chain relevant) ---
+package.json            @JLDuni @J0aoCanais @layonxd @Rafasta236
+package-lock.json       @JLDuni @J0aoCanais @layonxd @Rafasta236
+requirements*.txt       @JLDuni @J0aoCanais @layonxd @Rafasta236
+go.mod                  @JLDuni @J0aoCanais @layonxd @Rafasta236
+go.sum                  @JLDuni @J0aoCanais @layonxd @Rafasta236
+
+# --- Infrastructure / CI config ---
+/.github/dependabot.yml @JLDuni @J0aoCanais @layonxd @Rafasta236
