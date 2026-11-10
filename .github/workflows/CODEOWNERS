@@ -23,7 +23,7 @@
 # --- Protect the ownership file itself (per GitHub docs) ---
 # Most secure: put CODEOWNERS in .github/ and own it (or the whole dir)
 # by the repository owner.
-.github/CODEOWNERS      @JLDuni @J0aoCanais  @Rafasta236
+.github/CODEOWNERS      @JLDuni @J0aoCanais  
 # Alternatively, own the whole .github directory:
 # /.github/             @your-org/repo-owners
 
