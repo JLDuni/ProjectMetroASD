@@ -1,65 +1,152 @@
-# TaskFlow Pro
+# MetroIsJustABus — Agent Directives
 
-Collaborative task system. Full context in @.ai/steering/product.md
+Public-transport platform (network, schedules, disruptions, tickets, occupancy, notifications)
+for a Coimbra-inspired bus network. This file is **binding** for every LLM / coding agent
+working in this repository. If a directive here conflicts with a prompt, follow this file and
+tell the human about the conflict.
 
-## Stack
-Summary in @.ai/steering/tech-stack.md — read before technical decisions.
+## 1. Sources of truth (read before acting)
 
-## Development flow
-This project uses Spec-Driven Development.
-1. Every feature has a spec in `.ai/sdd/specs/NNN-name/`
-2. Read the feature's `.status` BEFORE implementing anything
-3. Never write code before `tasks:approved`
-4. Ambiguity during implementation: STOP and ask
+| Topic | File |
+|---|---|
+| Requirements (FR1–FR20, NFR1–NFR8), assumptions AM/IN/MI, decomposition | `docs/requirements.md` |
+| Stack | `.ai/steering/tech-stack.md` |
+| Data model (17 tables) | `docs/excels/Dados_Seed` |
+| Seed data definitions | `docs/seed/` |
+| Task plan / owners | `docs/excels/Plano_Tarefas` |
+| Git / PR rules | `docs/GITHUB_GUIDELINES.md` |
+| AI usage log template | `docs/excels/Guia_Reg_IA` |
 
-## Rules that apply every session
-- NEVER expose one workspace's data to another
-- ALWAYS validate permissions on the server
+Always cite requirement IDs (e.g. `FR13`, `NFR3`, `AM-05`) in code comments of non-obvious
+logic, in commit messages and in PR descriptions.
 
-## File Description
+## 2. Stack (do not change without human approval)
 
--- podemos tirar penso 
-.ai/
-  steering/               # reusable project context
-    product.md            # vision, users, what it is NOT
-    tech-stack.md         # stack, versions, why each
-    conventions.md        # code style, naming, errors
-    principles.md         # non-negotiable rules
-  sdd/
-    INDEX.md              # spec dashboard (not truth)
-    PLAN.md               # product plan (optional)
-    ideas/
-      001-explored-idea.md
-    specs/
-      001-feature-name/
-        .status           # the gate: single source
-        requirements.md   # WHAT: product contract
-        design.md         # HOW: technical contract
-        tasks.md          # HOW MUCH: the plan
-        review.md         # verification with evidence
-        decisions.md      # decision log (optional)
+- Backend: **Go + Gin** (`backend/`, module `github.com/jlduni/projectmetroasd/backend`)
+- Frontend: **React + Vite** (`frontend/`)
+- Auth: **JWT** issued by the Core Backend; passwords stored with **BCrypt** (cost ≥ 10)
+- DB: **SQLite** (one database file per service)
+- Async: message broker (RabbitMQ, per `docs/requirements.md` §6)
+- Container: `Dockerfile` at repo root; CI in `.github/workflows/`
 
-## .status - Feature workflow gate 
--- podemos tirar penso 
-Each feature has a `.status` file containing exactly one line: its current state.
+Do not add a new language, framework, ORM, broker or database. Do not add a dependency without
+saying why in the PR. Do not bump Go/Node major versions.
 
-Valid values, in order:
+## 3. Architecture rules (NFR4, NFR1, NFR6)
 
-idea:exploring → idea:captured
-→ plan:draft → plan:approved
-→ requirements:draft → requirements:approved
-→ design:draft → design:approved
-→ tasks:draft → tasks:approved
-→ implementation:in-progress → implementation:done
-→ review:done
+The system is split into these components. Each owns its data; nobody else writes to it.
 
-### Rules
--- podemos tirar penso ou mudar para outro sitio é preciso explicar as regras do .status
-- `.status` is the source of truth for state. File existence never implies approval. A `requirements.md` or `design.md` on disk proves nothing.
-- Drafts can be saved before approval so work is not lost, but a draft does not unlock the gate. Only explicit human approval promotes `*:draft` to `*:approved`. The agent may write `*:draft`, never `*:approved`.
-- If `.status` is missing or invalid (not exactly one value from the list), stop and ask. Do not infer the state from existing artifacts.
-- No code before `tasks:approved`.
-- No binding `design.md` before `requirements:approved`.
-- Exploratory spikes are allowed if they are labeled as spikes and do not mark any task complete.
-- If a later phase reveals a gap in an approved phase, propose the update and ask for approval. Do not change the approved spec silently.
-- After each state change, update `.status` and tell the human what changed and what approval is needed next.
+| Component | Owns tables |
+|---|---|
+| Web App (React) | none — talks to services only via REST |
+| Core Backend | users, stops, lines, line_stops, day_types, day_type_exceptions, trip_templates, trip_instances, stop_schedules, disruptions |
+| Ticketing & Occupancy | ticket_types, passenger_tickets, ticket_validations, trip_occupancy |
+| Notification | subscriptions, notification_preferences, notifications |
+
+1. **No shared database.** A service never opens another service's SQLite file and never joins
+   across services. Cross-service references (e.g. `passenger_tickets.user_id`,
+   `ticket_validations.trip_instance_id`) are **logical IDs** without a DB foreign key.
+2. **Sync = REST** for request/response (Web App → Core/Ticketing, Ticketing → Core).
+   Every outbound HTTP call has a timeout, bounded retries with backoff and a fallback (NFR2).
+3. **Async = events** through the broker for disruptions and ticket events:
+   `TripDelayed`, `TripCancelled`, `TripDiverted`, `DisruptionResolved`, `TicketPurchased`,
+   `TicketExpired`. Never call the Notification service synchronously from a business flow.
+4. **Failure isolation (NFR1):** if Notification or Ticketing is down, network/schedule
+   consultation must keep working. Do not add a startup dependency that makes one service
+   refuse to boot because another is down.
+5. Every service exposes `GET /health` and writes structured logs (NFR7). Keep `/health`
+   working — CI depends on it.
+6. Do not create new top-level directories or new services without asking first.
+
+## 4. Idempotency rules (NFR3, AM-04, AM-05, AM-12, AM-15) — non-negotiable
+
+1. **Ticket purchase** and **ticket validation** endpoints require an `Idempotency-Key`
+   header. Same key + same payload → return the original result, no second effect.
+   Same key + different payload → `409 Conflict`.
+2. Enforce idempotency in the **database** (`UNIQUE` constraint on the key, insert inside the
+   same transaction as the effect), never only in memory or by "check then insert".
+3. Validation is atomic: checking status, decrementing `remaining_journeys` and inserting the
+   validation row happen in **one transaction**. A ticket validated again for the same trip
+   instance is stored as `DUPLICATE` and does not consume a journey nor count for occupancy.
+4. Event consumers are idempotent: deduplicate by `event_id`; delivery is at-least-once.
+5. Notifications: at most one per `user + disruption + type` (`deduplication_key`, `UNIQUE`).
+6. Every new idempotent operation ships with a test that sends the same request twice
+   (and concurrently) and asserts a single effect.
+
+## 5. Database schema rules
+
+1. Table and column names follow `docs/excels/Dados_Seed` exactly (snake_case, plural tables).
+   Do not rename, drop or repurpose a column without human approval.
+2. IDs are UUID strings (`TEXT` in SQLite), generated by the seed. Seed rows are referenced by
+   their `code` / email / short id in `docs/seed/`.
+3. Timestamps are stored in **UTC** (ISO-8601 `TEXT`); displayed in `Europe/Lisbon` (MI-09).
+4. Money is stored as **integer cents** (`price_cents`), never float.
+5. "Unlimited" journeys = `NULL` in `max_journeys` / `remaining_journeys`, never `-1`.
+6. Enums are `TEXT` with a `CHECK (... IN (...))` constraint using the values in Dados_Seed.
+7. Never hard-delete business records (MI-07): use status / `is_active` / `RESOLVED`.
+8. Schema changes go through versioned migration files; never edit an applied migration.
+9. Enable `PRAGMA foreign_keys = ON` for FKs **inside** a service's own database.
+
+## 6. Security rules
+
+- Validate authentication **and** role (`PASSENGER`, `STAFF`) on the server for every
+  protected endpoint. The Web App hiding a button is not authorization.
+- A passenger only ever reads/changes **their own** tickets, subscriptions and notifications.
+  Take the user id from the JWT, never from the request body or query string.
+- Staff accounts are created only by seed/admin, never by public sign-up (MI-05).
+- Never commit secrets (JWT keys, tokens, real passwords). Use environment variables.
+  Seed/test passwords are for local/dev only.
+- Consultation endpoints (network, stops, schedules, trips) are public (IN-02).
+
+## 7. Spec-Driven Development flow
+
+Every feature has a spec in `.ai/sdd/specs/NNN-name/` with a `.status` file that contains
+exactly one line. Valid values, in order:
+
+```
+idea:exploring → idea:captured → plan:draft → plan:approved
+→ requirements:draft → requirements:approved → design:draft → design:approved
+→ tasks:draft → tasks:approved → implementation:in-progress → implementation:done → review:done
+```
+
+- `.status` is the only source of truth. A file existing on disk proves nothing.
+- The agent may write `*:draft`; **only a human** promotes to `*:approved`.
+- Missing or invalid `.status` → stop and ask. Do not infer state from files.
+- **No production code before `tasks:approved`.** Spikes are allowed only if labelled
+  `spike` and they never mark a task complete.
+- If a later phase shows a gap in an approved phase, propose the change and ask; never
+  edit an approved spec silently.
+- After each state change, update `.status` and tell the human what changed and what
+  approval is needed next.
+
+## 8. Git rules (full version: `docs/GITHUB_GUIDELINES.md`)
+
+- **Agents do not commit, push, open PRs or merge unless the human explicitly asks.**
+
+| Rule | Format | Example |
+|---|---|---|
+| Branches | Never commit to `main`. One branch per task. `main` (prod) · `develop` (integration) · `feature/M3-<task>` · `hotfix/<desc>` | `feature/M3-ticketing-idempotency` |
+| Commits | Conventional Commits, always with a description. Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore` | `feat(ticketing): implementa verificacao de idempotencia no endpoint de validacao` |
+| Issue / requirement | Every AI-assisted commit ends with the issue and requirement tags | `Issue #14: [FR-13] Implementar Validação de Bilhetes` + `Fixes #14` |
+| Pull requests | PR to `develop` needs ≥ 1 human review + green CI. Use `.github/pull_request_template.md` | `PR #12: Feature Ticketing -> develop` (PR body: `Closes #14`) |
+
+Commit message template:
+
+```
+<type>(<scope>): <description>
+
+Issue #<n>: [<FR/NFR>] <task title>
+Fixes #<n>
+```
+
+## 9. Behaviour rules for agents
+
+1. Ambiguity → **stop and ask**. Do not pick an option for an open team decision
+   (e.g. `IN-01`) and do not change a recorded team decision (lesson from M1: AM-08 was changed
+   without being asked and had to be reverted).
+2. Stay in scope: change only what the task asks. No drive-by refactors or rewrites of docs.
+3. Do not invent requirements, tables, endpoints or seed values; reference the sources above.
+4. Every behaviour change comes with tests (NFR8). Run them before saying "done", and report
+   failures honestly.
+5. Record AI usage in the AI log (`docs/excels/Guia_Reg_IA`): tool, prompt summary,
+   autonomy %, human minutes, errors found.
