@@ -1,0 +1,12 @@
+services:
+  backend:
+    image: ghcr.io/jlduni/metroisjustabus-backend:${IMAGE_TAG:-latest}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: ghcr.io/jlduni/metroisjustabus-frontend:${IMAGE_TAG:-latest}
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
