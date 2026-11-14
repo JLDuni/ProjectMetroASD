@@ -76,8 +76,8 @@ jobs:
           chmod +x scripts/healthcheck.sh
           ./scripts/healthcheck.sh http://localhost:8080/health
 
-      - name: Run Integration & E2E Verification
-        # run: |
+      # - name: Run Integration & E2E Verification
+      #   run: |
         #   go test -tags=integration ./tests/integration/...
 
   deploy-prod:
