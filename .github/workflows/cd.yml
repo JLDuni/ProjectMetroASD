@@ -4,7 +4,9 @@ on:
   workflow_run:
     workflows: ["CI"] 
     types: [completed]
-    branches: [main]
+    branches: 
+      - main
+      - CD/M2.2-Develop-CD #temporary
   workflow_dispatch: 
 
 env:
