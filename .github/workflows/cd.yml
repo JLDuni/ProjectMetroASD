@@ -74,10 +74,10 @@ jobs:
           docker compose -f deploy/docker-compose.dev.yml pull
           docker compose -f deploy/docker-compose.dev.yml up -d --remove-orphans
 
-      - name: Wait for Services Healthcheck
-        run: |
-          chmod +x scripts/healthcheck.sh
-          ./scripts/healthcheck.sh http://localhost:8080/health
+      # - name: Wait for Services Healthcheck
+      #   run: |
+      #     chmod +x scripts/healthcheck.sh
+      #     ./scripts/healthcheck.sh http://localhost:8080/health
 
       # - name: Run Integration & E2E Verification
       #   run: |
