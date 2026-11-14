@@ -52,8 +52,11 @@ jobs:
   deploy-and-verify-dev:
     name: Deploy to Dev & Run Integration Tests
     needs: [build-and-push-images]
-    runs-on: [self-hosted, dev]
+    runs-on: self-hosted
     environment: development
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout deployment configs
         uses: actions/checkout@v4
