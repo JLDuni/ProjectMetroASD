@@ -1,13 +1,15 @@
 name: CD Pipeline - MetroIsJustABus
 
 on:
+  push:
+    branches:
+      - CD/M2.2-Develop-CD
   workflow_run:
-    workflows: ["CI"] 
+    workflows: ["CI"]
     types: [completed]
-    branches: 
+    branches:
       - main
-      - CD/M2.2-Develop-CD #temporary
-  workflow_dispatch: 
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
