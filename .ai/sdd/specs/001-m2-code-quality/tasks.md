@@ -37,7 +37,7 @@ Implement this spec before spec 002. Both specs modify the same workflow, so spe
   - Re-run all checks and confirm success.
   - Validation: `git diff --check`, Go formatting check, `go vet ./...`, `npm run lint`, and `npm run build` all pass.
 
-- [ ] **Q5 - Record evidence and prepare human review** (NFR8)
+- [x] **Q5 - Record evidence and prepare human review** (NFR8)
   - Update the structured AI log with commands, failures, corrections, autonomy, and human time.
   - Update the Google Sheet summary without storing verbatim prompts.
   - Link the eventual issue, commit SHA, CI run, and PR.
