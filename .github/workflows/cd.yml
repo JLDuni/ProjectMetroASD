@@ -42,9 +42,6 @@ jobs:
           context: .
           push: true
           tags: |
-            # ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
-            # ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
-
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}:latest
 
