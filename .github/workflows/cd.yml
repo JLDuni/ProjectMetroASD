@@ -1,23 +1,22 @@
 name: CD Pipeline - MetroIsJustABus
 
 on:
-  push:
-    branches:
-      - CD/M2.2-Develop-CD
   workflow_run:
     workflows: ["CI"]
     types: [completed]
     branches:
       - main
+      - CD/M2.2-Develop-CD
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: jlduni/metroisjustabus
+
 jobs:
   build-and-push-images:
     name: Build & Push Docker Images
-    # if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     permissions: 
@@ -74,50 +73,49 @@ jobs:
           docker compose -f deploy/docker-compose.dev.yml pull
           docker compose -f deploy/docker-compose.dev.yml up -d --remove-orphans
 
-      # - name: Wait for Services Healthcheck
-      #   run: |
-      #     chmod +x scripts/healthcheck.sh
-      #     ./scripts/healthcheck.sh http://localhost:8080/health
+      - name: Wait for Services Healthcheck
+        run: |
+          chmod +x scripts/healthcheck.sh
+          ./scripts/healthcheck.sh http://localhost:8080/health
 
       # - name: Run Integration & E2E Verification
       #   run: |
         #   go test -tags=integration ./tests/integration/...
 
-  deploy-prod:
-    name: Production Deployment 
-    needs: [deploy-and-verify-dev]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Deploy via SSH with Automatic Rollback
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            set -e
-            cd /opt/metroisjustabus
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            TARGET_TAG="${{ github.event.workflow_run.head_sha || github.sha }}"
-            PREVIOUS_TAG=$(grep '^IMAGE_TAG=' .env | cut -d '=' -f2)
-
-            # Update .env with new commit SHA
-            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$TARGET_TAG/" .env
-
-            # Rolling restart of application services without disrupting stateful DB/broker
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d 
-
-            # Post-deployment validation gate
-            sleep 10
-            if ! curl -sf http://localhost:8080/health; then
-              echo "Healthcheck failed! Rolling back to $PREVIOUS_TAG..."
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$PREVIOUS_TAG/" .env
-              docker compose -f docker-compose.prod.yml up -d 
-              exit 1
-            fi
-
-            echo "Production deployment of $TARGET_TAG verified successfully!"
+  # deploy-prod:
+  #   name: Production Deployment 
+  #   needs: [deploy-and-verify-dev]
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   steps:
+  #     - name: Deploy via SSH with Automatic Rollback
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.PROD_HOST }}
+  #         username: ${{ secrets.PROD_USER }}
+  #         key: ${{ secrets.PROD_SSH_KEY }}
+  #         script: |
+  #           set -e
+  #           cd /opt/metroisjustabus
+  #           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  #
+  #           TARGET_TAG="${{ github.event.workflow_run.head_sha || github.sha }}"
+  #           PREVIOUS_TAG=$(grep '^IMAGE_TAG=' .env | cut -d '=' -f2)
+  #
+  #           # Update .env with new commit SHA
+  #           sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$TARGET_TAG/" .env
+  #
+  #           # Rolling restart of application services without disrupting stateful DB/broker
+  #           docker compose -f docker-compose.prod.yml pull
+  #           docker compose -f docker-compose.prod.yml up -d 
+  #
+  #           # Post-deployment validation gate
+  #           sleep 10
+  #           if ! curl -sf http://localhost:8080/health; then
+  #             echo "Healthcheck failed! Rolling back to $PREVIOUS_TAG..."
+  #             sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$PREVIOUS_TAG/" .env
+  #             docker compose -f docker-compose.prod.yml up -d 
+  #             exit 1
+  #           fi
+  #
+  #           echo "Production deployment of $TARGET_TAG verified successfully!"
