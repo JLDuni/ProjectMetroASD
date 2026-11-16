@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - CD/M2.2-Develop-CD
   workflow_dispatch:
 
 env:
