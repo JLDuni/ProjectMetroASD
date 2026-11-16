@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: jlduni/metroisjustabus
+  IMAGE_PREFIX: metroisjustabus/metroisjustabus
 
 jobs:
   build-and-push-images:
