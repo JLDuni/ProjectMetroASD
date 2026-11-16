@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ../backend
+    image: test-backend:latest
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ../frontend
+    image: test-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

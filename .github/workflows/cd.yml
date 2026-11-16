@@ -1,0 +1,107 @@
+name: CD Pipeline - MetroIsJustABus
+
+on:
+  push:
+    branches:
+      - main
+      - CD/M2.2-Develop-CD
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: metroisjustabus/metroisjustabus
+
+jobs:
+  build-and-push-images:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+
+    permissions: 
+      packages: write
+      contents: read
+
+    # strategy:
+    #   matrix:
+    #     service: [backend, frontend] #Temporario
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build and push ${{ matrix.service }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          # context: ./${{ matrix.service }}
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}:latest
+
+  deploy-and-verify-dev:
+    name: Deploy to Dev & Run Integration Tests
+    needs: [build-and-push-images]
+    runs-on: self-hosted
+    environment: development
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout deployment configs
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull & Start Dev Stack
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+        run: |
+          docker compose -f deploy/docker-compose.dev.yml pull
+          docker compose -f deploy/docker-compose.dev.yml up -d --remove-orphans
+
+  # deploy-prod:
+  #   name: Production Deployment 
+  #   needs: [deploy-and-verify-dev]
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   steps:
+  #     - name: Deploy via SSH with Automatic Rollback
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.PROD_HOST }}
+  #         username: ${{ secrets.PROD_USER }}
+  #         key: ${{ secrets.PROD_SSH_KEY }}
+  #         script: |
+  #           set -e
+  #           cd /opt/metroisjustabus
+  #           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  #
+  #           TARGET_TAG="${{ github.event.workflow_run.head_sha || github.sha }}"
+  #           PREVIOUS_TAG=$(grep '^IMAGE_TAG=' .env | cut -d '=' -f2)
+  #
+  #           # Update .env with new commit SHA
+  #           sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$TARGET_TAG/" .env
+  #
+  #           # Rolling restart of application services without disrupting stateful DB/broker
+  #           docker compose -f docker-compose.prod.yml pull
+  #           docker compose -f docker-compose.prod.yml up -d 
+  #
+  #           # Post-deployment validation gate
+  #           sleep 10
+  #           if ! curl -sf http://localhost:8080/health; then
+  #             echo "Healthcheck failed! Rolling back to $PREVIOUS_TAG..."
+  #             sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$PREVIOUS_TAG/" .env
+  #             docker compose -f docker-compose.prod.yml up -d 
+  #             exit 1
+  #           fi
+  #
+  #           echo "Production deployment of $TARGET_TAG verified successfully!"
