@@ -19,9 +19,9 @@ jobs:
       packages: write
       contents: read
 
-    strategy:
-      matrix:
-        service: [backend, frontend] #Temporario
+    # strategy:
+    #   matrix:
+    #     service: [backend, frontend] #Temporario
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,13 +33,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ${{ matrix.service }}
+      # - name: Build and push ${{ matrix.service }}
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./${{ matrix.service }}
+          # context: ./${{ matrix.service }}
+          context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.event.workflow_run.head_sha || github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
 
   deploy-and-verify-dev:

@@ -1,12 +1,8 @@
 services:
-  backend:
-    image: ghcr.io/metroisjustabus/metroisjustabus-backend:${IMAGE_TAG:-latest}
+  app:
+    image: ghcr.io/metroisjustabus/metroisjustabus:${IMAGE_TAG:-latest}
     ports:
-      - "8080:8080"
-
-  frontend:
-    image: ghcr.io/metroisjustabus/metroisjustabus-frontend:${IMAGE_TAG:-latest}
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    restart: unless-stopped
