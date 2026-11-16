@@ -10,9 +10,9 @@ tool: ChatGPT Work / Codex
 autonomy: 75%
 human_minutes: 25
 issue: 5
-commit: pending
-ci_run: pending
-pull_request: pending
+commit: 5a2008490ba95b9ccde332a402faa6c6617575b4
+ci_run: https://github.com/metroisjustabus/ProjectMetroASD/actions/runs/43903698598
+pull_request: https://github.com/metroisjustabus/ProjectMetroASD/pull/8
 ---
 
 # M2 Initial Automated Tests Implementation
@@ -72,14 +72,22 @@ This is a normalized summary. Raw conversation text and verbatim user prompts ar
 - `GET /` returned the served frontend document.
 - The cleanup trap removed the smoke container after validation.
 
+### GitHub Actions
+
+- Workflow run `43903698598`: passed in 1 minute 3 seconds.
+- `quality`: passed in 21 seconds.
+- `tests`: passed in 19 seconds.
+- `build-and-verify`: passed in 37 seconds after `quality` and `tests` completed successfully.
+- The CI run therefore verifies that the dedicated test job blocks artifact creation through the declared job dependency.
+
 ## Errors, Limitations, And Rework
 
 - Docker socket access in the restricted agent environment required the human to run Docker commands with `sudo`.
 - The first controlled-failure run intentionally failed; this was validation evidence, not an unresolved defect.
 - Gin emitted non-blocking development-mode and trusted-proxy warnings. Changing runtime proxy or release-mode configuration is outside the approved task scope.
-- CI evidence cannot exist until the implementation is committed and pushed with human authorization.
 - PR `#4` for spec 001 was merged. On 2026-11-16, the spec 002 branch was fast-forwarded to `origin/develop` at `e130fdb` before preparing its commit.
 - Google Sheet row `LOG-011` was updated with the confirmed metrics and a normalized summary that excludes verbatim prompts.
+- GitHub emitted non-blocking runner notices: JavaScript actions targeting Node.js 20 were forced to Node.js 24, and `ubuntu-latest` is migrating to Ubuntu 26.
 
 ## Outputs
 
@@ -93,7 +101,10 @@ This is a normalized summary. Raw conversation text and verbatim user prompts ar
 - Issue: `#5`.
 - Local unit and smoke validation: passed.
 - Branch synchronization: complete at `origin/develop` commit `e130fdb`.
-- Commit, CI run, and pull request: pending human authorization.
-- Spec status remains `implementation:in-progress` until CI evidence is available.
+- Implementation commit: `5a2008490ba95b9ccde332a402faa6c6617575b4`.
+- Pull request: `#8`, targeting `develop`.
+- CI: successful workflow run `43903698598`.
+- Spec status: `implementation:done`.
+- Independent human review is still pending; the spec must not move to `review:done` before that review.
 
-No commit, push, pull-request creation, or merge was performed by the agent.
+The human performed the commit, push, and pull-request creation after explicit review and authorization. No merge was performed by the agent.

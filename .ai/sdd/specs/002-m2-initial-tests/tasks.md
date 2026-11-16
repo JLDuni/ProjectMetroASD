@@ -45,7 +45,7 @@ Synchronization completed (2026-11-16): after PR #4 was merged, `feature/M3-init
   - Run the combined quality, test, Docker build, and smoke sequence.
   - Confirm public endpoint responses are unchanged.
 
-- [ ] **T6 - Record evidence and prepare human review** (NFR8)
+- [x] **T6 - Record evidence and prepare human review** (NFR8)
   - Update the structured AI log with test results, failures, corrections, autonomy, and human time.
   - Update the Google Sheet summary without storing verbatim prompts.
   - Link the eventual issue, commit SHA, CI run, and PR.
@@ -66,7 +66,14 @@ Synchronization completed (2026-11-16): after PR #4 was merged, `feature/M3-init
 - The smoke container was removed by the cleanup trap after validation.
 - Google Sheet `Guia & Registo de IA!A15:K15` was updated as `LOG-011` with confirmed metrics of 75% autonomy and 25 human minutes; no verbatim prompts were stored.
 - Branch synchronization: `feature/M3-initial-tests` matches `origin/develop` at `e130fdb` before the Task 4 commit is created.
-- CI evidence, commit SHA, and pull request remain pending; T6 and the spec status stay open until those results exist.
+- Implementation commit: `5a2008490ba95b9ccde332a402faa6c6617575b4`.
+- Pull request: `https://github.com/metroisjustabus/ProjectMetroASD/pull/8`, targeting `develop` from `feature/M3-initial-tests`.
+- GitHub Actions run `43903698598`: successful in 1 minute 3 seconds.
+- CI `quality`: passed in 21 seconds.
+- CI `tests`: passed in 19 seconds.
+- CI `build-and-verify`: passed in 37 seconds after both prerequisite jobs succeeded.
+- GitHub reported non-blocking notices about Node.js 20 actions being forced to Node.js 24 and the `ubuntu-latest` migration to Ubuntu 26.
+- T6 is complete and the spec is `implementation:done`; independent review is still required before `review:done`.
 
 ## Completion Criteria
 
