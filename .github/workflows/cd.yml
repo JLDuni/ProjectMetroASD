@@ -1,10 +1,7 @@
 name: CD Pipeline - MetroIsJustABus
 
 on:
-  # workflow_run:
   push:
-    # workflows: ["CI"]
-    # types: [completed]
     branches:
       - main
       - CD/M2.2-Develop-CD
@@ -17,7 +14,6 @@ env:
 jobs:
   build-and-push-images:
     name: Build & Push Docker Images
-    # if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     permissions: 
@@ -30,8 +26,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -60,15 +54,13 @@ jobs:
     steps:
       - name: Checkout deployment configs
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Pull & Start Dev Stack
         env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
           DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
         run: |
           docker compose -f deploy/docker-compose.dev.yml pull
