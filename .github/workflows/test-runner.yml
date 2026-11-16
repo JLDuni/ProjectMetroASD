@@ -1,5 +1,7 @@
 name: test-runner
-on: workflow_dispatch
+on:
+  push:
+     workflow_dispatch:
 jobs:
   check:
     runs-on: [self-hosted, dev]
