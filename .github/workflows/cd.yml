@@ -2,9 +2,9 @@ name: CD Pipeline - MetroIsJustABus
 
 on:
   # workflow_run:
-    push:
+  push:
     # workflows: ["CI"]
-    types: [completed]
+    # types: [completed]
     branches:
       - main
       - CD/M2.2-Develop-CD
