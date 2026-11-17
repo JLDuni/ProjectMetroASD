@@ -15,7 +15,7 @@ tell the human about the conflict.
 | Seed data definitions | `docs/seed/` |
 | Task plan / owners | `docs/excels/Plano_Tarefas` |
 | Git / PR rules | `docs/GITHUB_GUIDELINES.md` |
-| AI usage log template | `docs/excels/Guia_Reg_IA` |
+| AI usage log (mandatory, one entry per task) | `docs/AI_LOGS.md` (template: `docs/excels/Guia_Reg_IA`) |
 
 Always cite requirement IDs (e.g. `FR13`, `NFR3`, `AM-05`) in code comments of non-obvious
 logic, in commit messages and in PR descriptions.
@@ -121,6 +121,9 @@ idea:exploring → idea:captured → plan:draft → plan:approved
 
 ## 8. Git rules (full version: `docs/GITHUB_GUIDELINES.md`)
 
+**Every task must follow `docs/GITHUB_GUIDELINES.md` and be recorded in `docs/AI_LOGS.md`.**
+A task is not done until both are satisfied.
+
 - **Agents do not commit, push, open PRs or merge unless the human explicitly asks.**
 
 | Rule | Format | Example |
@@ -148,5 +151,7 @@ Fixes #<n>
 3. Do not invent requirements, tables, endpoints or seed values; reference the sources above.
 4. Every behaviour change comes with tests (NFR8). Run them before saying "done", and report
    failures honestly.
-5. Record AI usage in the AI log (`docs/excels/Guia_Reg_IA`): tool, prompt summary,
-   autonomy %, human minutes, errors found.
+5. Every task must add an entry to `docs/AI_LOGS.md` (next `LOG-NNN`, in the summary table
+   and in the detailed section), following its fields: date, member, SDLC phase, task, AI tool,
+   prompt/context summary, autonomy %, human minutes, result/errors found, and evidence
+   (commit SHA, PR, CI run, `convo_log_files/` entry). Only reference commits/PRs that exist.
