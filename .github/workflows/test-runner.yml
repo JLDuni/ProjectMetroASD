@@ -1,0 +1,12 @@
+name: test-runner
+on:
+  push:
+     workflow_dispatch:
+jobs:
+  check:
+    runs-on: [self-hosted, dev]
+    steps:
+      - run: |
+          whoami
+          docker version
+          docker compose version

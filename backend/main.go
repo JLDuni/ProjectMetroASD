@@ -7,26 +7,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	r := gin.Default()
+func newRouter() *gin.Engine {
+	router := gin.Default()
 
-	r.GET("/health", func(c *gin.Context) {
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	r.GET("/api/hello", func(c *gin.Context) {
+	router.GET("/api/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello from MetroIsJustABus backend"})
 	})
 
-	// Serve the built React app (copied into /app/static in the image)
-	r.Static("/assets", "./static/assets")
-	r.NoRoute(func(c *gin.Context) {
+	// TST-05: preserve the production frontend and fallback routes covered by smoke tests.
+	router.Static("/assets", "./static/assets")
+	router.NoRoute(func(c *gin.Context) {
 		c.File("./static/index.html")
 	})
+
+	return router
+}
+
+func main() {
+	router := newRouter()
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
 	}
-	r.Run(":" + port)
+	router.Run(":" + port)
 }
